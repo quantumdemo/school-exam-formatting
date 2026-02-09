@@ -2,12 +2,16 @@
 
 A professional web application for secondary school teachers to format examination papers into a standard academic layout (WAEC style).
 
+## Visionary Idea
+This project was brought to life based on a visionary idea by **Afeez Alomi Olalekan**, aimed at empowering teachers and simplifying academic administration.
+
 ## Features
 - **Pasted Text Parsing:** Automatically transforms raw, poorly spaced text into a structured exam document.
 - **Section A (Objectives):** Auto-numbered questions with aligned options (A-E).
 - **Section B (Theory):** Questions labeled as "QUESTION ONE", "QUESTION TWO", etc., with sub-questions (a, b, c) and aligned marks.
 - **Academic Styling:** Professional header, metadata line, and Times New Roman font.
 - **Preview & Export:** Real-time preview with PDF and DOCX download options.
+- **Landing Page:** Includes an "About" section explaining the mission and a "Contact" section for support.
 
 ## How to Run Locally
 
@@ -25,15 +29,6 @@ Due to the use of Modern JavaScript (ES Modules), opening `index.html` directly 
 ### Method 3: Using Node.js
 1. Run: `npx serve .`
 2. Open the URL provided (usually `http://localhost:3000`).
-
-## Usage Instructions
-1. Fill in the school details (Name, Address, etc.).
-2. Paste your objective questions in Section A.
-3. Paste your theory questions in Section B.
-   - Use `(a)`, `(b)` for sub-questions.
-   - Use `[5 marks]` at the end of a question to include marks.
-4. Click **"Generate Preview"** to see the result.
-5. Click **"PDF"** or **"Word"** to download the final document.
 
 ## Tech Stack
 - HTML, CSS (Tailwind CSS for UI), JavaScript

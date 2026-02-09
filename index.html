@@ -9,11 +9,16 @@
     <script src="https://unpkg.com/docx@8.2.2/build/index.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Libre+Baskerville:wght@400;700&display=swap');
+
+        html {
+            scroll-behavior: smooth;
+        }
 
         body {
-            background-color: #f3f4f6;
+            background-color: #f9fafb;
             font-family: 'Inter', sans-serif;
+            color: #111827;
         }
 
         .exam-page {
@@ -123,105 +128,164 @@
             body { background: none; padding: 0; }
             .no-print { display: none; }
             .exam-page { box-shadow: none; margin: 0; padding: 15mm; width: 100%; }
+            .hero-section, .about-section, .contact-section { display: none; }
         }
 
         /* App Layout */
-        .main-container {
+        .app-container {
             display: flex;
             flex-direction: column;
             height: 100vh;
         }
 
         @media (min-width: 1024px) {
-            .main-container {
+            .app-container {
                 flex-direction: row;
             }
             .input-section {
-                width: 400px;
-                min-width: 400px;
-                max-width: 500px;
+                width: 450px;
+                min-width: 450px;
                 overflow-y: auto;
             }
             .preview-section {
                 flex-grow: 1;
                 overflow-y: auto;
-                background-color: #525659;
-                padding: 20px;
+                background-color: #374151;
+                padding: 40px 20px;
             }
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
         }
     </style>
 </head>
 <body>
-    <div class="main-container">
+    <!-- Hero Section -->
+    <section class="hero-section hero-gradient text-white py-20 px-6 text-center shadow-2xl relative overflow-hidden">
+        <div class="max-w-4xl mx-auto relative z-10">
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">
+                Exam Formatter
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 opacity-90 font-medium">
+                Automatically transform raw questions into professional, standard-compliant examination documents.
+            </p>
+            <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-12">
+                <a href="#app-main" class="bg-white text-blue-700 hover:bg-blue-50 font-bold py-4 px-10 rounded-full text-lg shadow-lg transition transform hover:scale-105">
+                    Start Formatting Now
+                </a>
+                <a href="#about" class="text-white border-2 border-white/30 hover:bg-white/10 font-bold py-4 px-10 rounded-full text-lg transition">
+                    Learn More
+                </a>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm inline-block px-6 py-2 rounded-full text-sm font-semibold uppercase tracking-widest border border-white/20">
+                A Visionary Concept by <span class="text-yellow-300">Afeez Alomi Olalekan</span>
+            </div>
+        </div>
+        <!-- Decorative elements -->
+        <div class="absolute top-0 left-0 w-64 h-64 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+        <div class="absolute bottom-0 right-0 w-96 h-96 bg-blue-400/10 rounded-full translate-x-1/4 translate-y-1/4"></div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section py-20 px-6 bg-white">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">About the Project</h2>
+                <div class="h-1.5 w-24 bg-blue-600 mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h3 class="text-2xl font-bold text-blue-800 mb-4">Purpose & Mission</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">
+                        Secondary school teachers often spend hours manually formatting examination papers to meet strict school standards. The <strong>Exam Formatter</strong> was created to solve this specific pain point.
+                    </p>
+                    <p class="text-gray-600 leading-relaxed">
+                        Our mission is to empower educators by automating the tedious task of layouting, spacing, and numbering. By pasting raw questions into this tool, teachers can generate a perfectly structured document in seconds, allowing them to focus more on content quality and student engagement.
+                    </p>
+                </div>
+                <div class="bg-blue-50 p-8 rounded-2xl border border-blue-100 shadow-inner">
+                    <h3 class="text-xl font-bold text-blue-900 mb-4 italic text-center">"Empowering Teachers Through Technology"</h3>
+                    <p class="text-blue-800/80 text-center text-sm">
+                        This initiative was brought to life through the innovative idea of <strong>Afeez Alomi Olalekan</strong>, who recognized the need for a simplified document generation tool tailored for the African academic environment, specifically matching standard WAEC formatting.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main App Container -->
+    <div id="app-main" class="app-container no-print border-t border-gray-200">
         <!-- Input Section -->
-        <div class="input-section p-6 bg-white shadow-lg z-10">
-            <div class="flex items-center justify-between mb-6">
-                <h1 class="text-xl font-bold text-blue-900 flex items-center">
-                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    Exam Formatter
-                </h1>
-                <button id="loadSampleBtn" class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 py-1 px-2 rounded transition">
-                    Load Sample
+        <div class="input-section p-8 bg-white shadow-xl z-10">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    Exam Editor
+                </h2>
+                <button id="loadSampleBtn" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold py-2 px-4 rounded-lg transition text-sm">
+                    Load Sample Data
                 </button>
             </div>
 
-            <div class="space-y-4 pb-10">
-                <div class="grid grid-cols-1 gap-4">
+            <div class="space-y-6 pb-20">
+                <div class="grid grid-cols-1 gap-5">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">School Name</label>
-                        <input type="text" id="schoolName" class="mt-1 block w-full border border-gray-300 rounded shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="e.g. FEDERAL GOVERNMENT COLLEGE">
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">School Name</label>
+                        <input type="text" id="schoolName" class="w-full border-2 border-gray-100 rounded-xl p-3 focus:border-blue-500 focus:outline-none transition" placeholder="e.g. FEDERAL GOVERNMENT COLLEGE">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Management Line</label>
-                        <input type="text" id="managementLine" class="mt-1 block w-full border border-gray-300 rounded shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="e.g. P.M.B 1010, Keffi, Nasarawa State">
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Management Line</label>
+                        <input type="text" id="managementLine" class="w-full border-2 border-gray-100 rounded-xl p-3 focus:border-blue-500 focus:outline-none transition" placeholder="e.g. P.M.B 1010, Keffi, Nasarawa State">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Examination Title</label>
-                        <input type="text" id="examTitle" class="mt-1 block w-full border border-gray-300 rounded shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="e.g. SECOND TERM EXAMINATION">
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Examination Title</label>
+                        <input type="text" id="examTitle" class="w-full border-2 border-gray-100 rounded-xl p-3 focus:border-blue-500 focus:outline-none transition" placeholder="e.g. SECOND TERM EXAMINATION">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Session and Term</label>
-                        <input type="text" id="sessionTerm" class="mt-1 block w-full border border-gray-300 rounded shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="e.g. 2023/2024 SESSION">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-3 gap-2">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Class</label>
-                        <input type="text" id="className" class="mt-1 block w-full border border-gray-300 rounded shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="SS2">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Subject</label>
-                        <input type="text" id="subject" class="mt-1 block w-full border border-gray-300 rounded shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Physics">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Time</label>
-                        <input type="text" id="timeAllowed" class="mt-1 block w-full border border-gray-300 rounded shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="2½ Hours">
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Session and Term</label>
+                        <input type="text" id="sessionTerm" class="w-full border-2 border-gray-100 rounded-xl p-3 focus:border-blue-500 focus:outline-none transition" placeholder="e.g. 2023/2024 SESSION">
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Section A: Objective Questions</label>
-                    <textarea id="sectionA" rows="6" class="mt-1 block w-full border border-gray-300 rounded shadow-sm p-2 font-mono text-xs focus:ring-blue-500 focus:border-blue-500" placeholder="1. The SI unit of force is...&#10;A. Joule B. Newton C. Watt D. Pascal"></textarea>
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Class</label>
+                        <input type="text" id="className" class="w-full border-2 border-gray-100 rounded-xl p-3 focus:border-blue-500 focus:outline-none transition" placeholder="SS2">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Subject</label>
+                        <input type="text" id="subject" class="w-full border-2 border-gray-100 rounded-xl p-3 focus:border-blue-500 focus:outline-none transition" placeholder="Physics">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Time</label>
+                        <input type="text" id="timeAllowed" class="w-full border-2 border-gray-100 rounded-xl p-3 focus:border-blue-500 focus:outline-none transition" placeholder="2½ Hours">
+                    </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Section B: Theory Questions</label>
-                    <textarea id="sectionB" rows="6" class="mt-1 block w-full border border-gray-300 rounded shadow-sm p-2 font-mono text-xs focus:ring-blue-500 focus:border-blue-500" placeholder="1. (a) State Ohm's law [3 marks]&#10;(b) Define resistance. [2 marks]"></textarea>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Section A: Objective Questions</label>
+                    <textarea id="sectionA" rows="6" class="w-full border-2 border-gray-100 rounded-xl p-3 font-mono text-sm focus:border-blue-500 focus:outline-none transition" placeholder="1. The SI unit of force is...&#10;A. Joule B. Newton C. Watt D. Pascal"></textarea>
                 </div>
 
-                <div class="sticky bottom-0 bg-white pt-4 pb-2 space-y-2 border-t mt-4">
-                    <button id="generateBtn" class="w-full bg-blue-700 text-white font-bold py-2 px-4 rounded hover:bg-blue-800 shadow-md transition">
-                        Generate Preview
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Section B: Theory Questions</label>
+                    <textarea id="sectionB" rows="6" class="w-full border-2 border-gray-100 rounded-xl p-3 font-mono text-sm focus:border-blue-500 focus:outline-none transition" placeholder="1. (a) State Ohm's law [3 marks]&#10;(b) Define resistance. [2 marks]"></textarea>
+                </div>
+
+                <div class="sticky bottom-0 bg-white pt-6 pb-2 space-y-3 border-t">
+                    <button id="generateBtn" class="w-full hero-gradient text-white font-extrabold py-4 px-4 rounded-xl shadow-lg hover:shadow-xl transition transform active:scale-95">
+                        Generate Live Preview
                     </button>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button id="downloadPdfBtn" class="bg-red-600 text-white font-semibold py-2 px-4 rounded hover:bg-red-700 transition flex items-center justify-center text-sm">
-                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"></path></svg>
-                            PDF
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="downloadPdfBtn" class="bg-red-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-red-700 transition flex items-center justify-center text-sm shadow-md">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"></path></svg>
+                            Download PDF
                         </button>
-                        <button id="downloadDocxBtn" class="bg-blue-800 text-white font-semibold py-2 px-4 rounded hover:bg-blue-900 transition flex items-center justify-center text-sm">
-                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 012-2h4.586A1 1 0 0111.293 2.707l4 4a1 1 0 01.293.707V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"></path></svg>
-                            Word
+                        <button id="downloadDocxBtn" class="bg-blue-900 text-white font-bold py-3 px-4 rounded-xl hover:bg-blue-950 transition flex items-center justify-center text-sm shadow-md">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 012-2h4.586A1 1 0 0111.293 2.707l4 4a1 1 0 01.293.707V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"></path></svg>
+                            Download Word
                         </button>
                     </div>
                 </div>
@@ -231,16 +295,42 @@
         <!-- Preview Section -->
         <div class="preview-section">
             <div id="examPreview" class="exam-page">
-                <div class="flex flex-col items-center justify-center h-full text-gray-400 opacity-50 space-y-4">
-                    <svg class="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <div class="flex flex-col items-center justify-center h-full text-gray-400 opacity-40 space-y-6">
+                    <svg class="w-32 h-32" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     <div class="text-center">
-                        <p class="text-xl font-bold italic">Exam Preview</p>
-                        <p>Enter details and click "Generate Preview"</p>
+                        <p class="text-2xl font-bold italic">Exam Live Preview</p>
+                        <p class="text-lg">Fill in the details to see the magic</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Contact Section -->
+    <section class="contact-section py-20 px-6 bg-gray-900 text-white">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-3xl font-extrabold mb-8">Get In Touch</h2>
+            <p class="text-gray-400 mb-12 text-lg">
+                Have questions or feedback about the Exam Formatter? We'd love to hear from you.
+            </p>
+            <div class="grid md:grid-cols-2 gap-8 mb-16">
+                <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                    <svg class="w-8 h-8 mx-auto mb-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    <h3 class="font-bold mb-2">Email Us</h3>
+                    <p class="text-gray-400">contact@example.com</p>
+                </div>
+                <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                    <svg class="w-8 h-8 mx-auto mb-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    <h3 class="font-bold mb-2">WhatsApp</h3>
+                    <p class="text-gray-400">+234 000 000 0000</p>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 text-sm text-gray-500">
+                <p>&copy; 2024 Exam Formatter. All rights reserved.</p>
+                <p class="mt-2">Designed for teachers, by a visionary idea from Afeez Alomi Olalekan.</p>
+            </div>
+        </div>
+    </section>
 
     <script src="src/main.js" type="module"></script>
 </body>
