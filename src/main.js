@@ -6,6 +6,12 @@ document.getElementById('downloadPdfBtn').addEventListener('click', downloadPdf)
 document.getElementById('downloadDocxBtn').addEventListener('click', downloadDocx);
 document.getElementById('loadSampleBtn').addEventListener('click', loadSample);
 
+// Set dynamic year in footer
+const yearSpan = document.getElementById('currentYear');
+if (yearSpan) {
+    yearSpan.textContent = new Date().getFullYear();
+}
+
 function showDocument() {
     generatePreview();
     document.querySelector('.input-section').classList.add('hidden');
