@@ -263,17 +263,20 @@ async function downloadDocx() {
         children: [new TextRun({ text: data.sessionTerm || 'SESSION / TERM', size: 24, font: "Times New Roman" })],
     }));
 
-    // Meta line
+    // Meta line with TabStops for balanced alignment
     children.push(new Paragraph({
         border: { bottom: { color: "auto", space: 1, value: BorderStyle.SINGLE, size: 6 } },
         spacing: { before: 300, after: 300 },
+        tabStops: [
+            { type: TabStopType.CENTER, position: 5230 },
+            { type: TabStopType.RIGHT, position: 10460 }
+        ],
         children: [
-            new TextRun({
-                text: `CLASS: ${data.className || '________'}    SUBJECT: ${data.subject || '________'}    TIME: ${data.timeAllowed || '________'}`,
-                bold: true,
-                size: 24,
-                font: "Times New Roman"
-            })
+            new TextRun({ text: `CLASS: ${data.className || '________'}`, bold: true, size: 24, font: "Times New Roman" }),
+            new TextRun({ text: "\t", size: 24 }),
+            new TextRun({ text: `SUBJECT: ${data.subject || '________'}`, bold: true, size: 24, font: "Times New Roman" }),
+            new TextRun({ text: "\t", size: 24 }),
+            new TextRun({ text: `TIME: ${data.timeAllowed || '________'}`, bold: true, size: 24, font: "Times New Roman" }),
         ],
     }));
 
@@ -305,13 +308,20 @@ async function downloadDocx() {
                 for (let i = 0; i < q.options.length; i += 2) {
                     const opt1 = q.options[i];
                     const opt2 = q.options[i+1];
-                    let lineText = `(${opt1.label}) ${opt1.text}`;
+
+                    const pChildren = [
+                        new TextRun({ text: `(${opt1.label}) ${opt1.text}`, size: 24, font: "Times New Roman" })
+                    ];
+
                     if (opt2) {
-                        lineText += " ".repeat(20) + `(${opt2.label}) ${opt2.text}`;
+                        pChildren.push(new TextRun({ text: "\t", size: 24 }));
+                        pChildren.push(new TextRun({ text: `(${opt2.label}) ${opt2.text}`, size: 24, font: "Times New Roman" }));
                     }
+
                     children.push(new Paragraph({
                         indent: { left: 720 },
-                        children: [new TextRun({ text: lineText, size: 24, font: "Times New Roman" })],
+                        tabStops: [{ type: TabStopType.LEFT, position: 5000 }],
+                        children: pChildren,
                     }));
                 }
             }
@@ -346,9 +356,9 @@ async function downloadDocx() {
         });
 
                 children.push(new Paragraph({
-            tabStops: [{ type: TabStopType.RIGHT, position: 9000 }],
+                    tabStops: [{ type: TabStopType.RIGHT, position: 10460 }],
                     children: [
-                ...textRuns,
+                        ...textRuns,
                         ...(q.marks ? [
                             new TextRun({ text: "\t", size: 24 }),
                             new TextRun({ text: `[${q.marks}]`, bold: true, size: 24, font: "Times New Roman" })
@@ -366,9 +376,9 @@ async function downloadDocx() {
 
                 children.push(new Paragraph({
                     indent: { left: 720 },
-            tabStops: [{ type: TabStopType.RIGHT, position: 9000 }],
+                    tabStops: [{ type: TabStopType.RIGHT, position: 10460 }],
                     children: [
-                ...textRuns,
+                        ...textRuns,
                         ...(sub.marks ? [
                             new TextRun({ text: "\t", size: 24 }),
                             new TextRun({ text: `[${sub.marks}]`, bold: true, size: 24, font: "Times New Roman" })
