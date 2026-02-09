@@ -34,3 +34,21 @@ Due to the use of Modern JavaScript (ES Modules), opening `index.html` directly 
 - HTML, CSS (Tailwind CSS for UI), JavaScript
 - [html2pdf.js](https://github.com/eKoopmans/html2pdf.js) for PDF generation
 - [docx](https://github.com/dolanmiu/docx) for DOCX generation
+
+## Deployment
+
+Since this is a static website (HTML/JS), you can deploy it for free using various services:
+
+### 1. GitHub Pages (Recommended for Teachers)
+1. Upload these files to a new GitHub repository.
+2. Go to **Settings** > **Pages**.
+3. Under **Build and deployment**, set the branch to `main` (or `master`) and folder to `/ (root)`.
+4. Your site will be live at `https://your-username.github.io/your-repo-name/`.
+
+### 2. Netlify / Vercel
+1. Create a free account on [Netlify](https://www.netlify.com/) or [Vercel](https://vercel.com/).
+2. Drag and drop the project folder into the "Deploy" area.
+3. They will provide you with a public URL immediately.
+
+### 3. Vpanel / cPanel (Traditional Hosting)
+1. Upload all files (`index.html`, `src/`, `assets/`, etc.) to the `public_html` folder via FTP or File Manager.
