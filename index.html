@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Formatter - Professional Exam Document Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://unpkg.com/docx@8.2.2/build/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap');
+
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .exam-page {
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm;
+            margin: 20px auto;
+            box-shadow: 0 0 20px rgba(0,0,0,0.15);
+            font-family: 'Times New Roman', Times, serif;
+            color: black;
+            line-height: 1.4;
+            font-size: 12pt;
+        }
+
+        .exam-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .school-name {
+            font-size: 18pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .management-line {
+            font-size: 10pt;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .exam-title {
+            font-size: 14pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        .session-term {
+            font-size: 12pt;
+            margin-bottom: 10px;
+        }
+
+        .exam-meta {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid black;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 11pt;
+        }
+
+        .section-heading {
+            text-align: center;
+            font-weight: bold;
+            text-decoration: underline;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-size: 13pt;
+        }
+
+        .instruction {
+            font-style: italic;
+            margin-bottom: 15px;
+            font-size: 11pt;
+        }
+
+        .objective-question {
+            margin-bottom: 15px;
+            page-break-inside: avoid;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2px 20px;
+            margin-left: 25px;
+            margin-top: 5px;
+        }
+
+        .theory-question {
+            margin-bottom: 25px;
+            page-break-inside: avoid;
+        }
+
+        .theory-q-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .sub-question {
+            margin-left: 30px;
+            margin-bottom: 5px;
+        }
+
+        .marks {
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        @media print {
+            body { background: none; padding: 0; }
+            .no-print { display: none; }
+            .exam-page { box-shadow: none; margin: 0; padding: 15mm; width: 100%; }
+        }
+
+        /* App Layout */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        @media (min-width: 1024px) {
+            .main-container {
+                flex-direction: row;
+            }
+            .input-section {
+                width: 400px;
+                min-width: 400px;
+                max-width: 500px;
+                overflow-y: auto;
+            }
+            .preview-section {
+                flex-grow: 1;
+                overflow-y: auto;
+                background-color: #525659;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Input Section -->
+        <div class="input-section p-6 bg-white shadow-lg z-10">
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-xl font-bold text-blue-900 flex items-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Exam Formatter
+                </h1>
+                <button id="loadSampleBtn" class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 py-1 px-2 rounded transition">
+                    Load Sample
+                </button>
+            </div>
+
+            <div class="space-y-4 pb-10">
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">School Name</label>
+                        <input type="text" id="schoolName" class="mt-1 block w-full border border-gray-300 rounded shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="e.g. FEDERAL GOVERNMENT COLLEGE">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Management Line</label>
+                        <input type="text" id="managementLine" class="mt-1 block w-full border border-gray-300 rounded shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="e.g. P.M.B 1010, Keffi, Nasarawa State">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Examination Title</label>
+                        <input type="text" id="examTitle" class="mt-1 block w-full border border-gray-300 rounded shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="e.g. SECOND TERM EXAMINATION">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Session and Term</label>
+                        <input type="text" id="sessionTerm" class="mt-1 block w-full border border-gray-300 rounded shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="e.g. 2023/2024 SESSION">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Class</label>
+                        <input type="text" id="className" class="mt-1 block w-full border border-gray-300 rounded shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="SS2">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Subject</label>
+                        <input type="text" id="subject" class="mt-1 block w-full border border-gray-300 rounded shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Physics">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Time</label>
+                        <input type="text" id="timeAllowed" class="mt-1 block w-full border border-gray-300 rounded shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="2½ Hours">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Section A: Objective Questions</label>
+                    <textarea id="sectionA" rows="6" class="mt-1 block w-full border border-gray-300 rounded shadow-sm p-2 font-mono text-xs focus:ring-blue-500 focus:border-blue-500" placeholder="1. The SI unit of force is...&#10;A. Joule B. Newton C. Watt D. Pascal"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Section B: Theory Questions</label>
+                    <textarea id="sectionB" rows="6" class="mt-1 block w-full border border-gray-300 rounded shadow-sm p-2 font-mono text-xs focus:ring-blue-500 focus:border-blue-500" placeholder="1. (a) State Ohm's law [3 marks]&#10;(b) Define resistance. [2 marks]"></textarea>
+                </div>
+
+                <div class="sticky bottom-0 bg-white pt-4 pb-2 space-y-2 border-t mt-4">
+                    <button id="generateBtn" class="w-full bg-blue-700 text-white font-bold py-2 px-4 rounded hover:bg-blue-800 shadow-md transition">
+                        Generate Preview
+                    </button>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="downloadPdfBtn" class="bg-red-600 text-white font-semibold py-2 px-4 rounded hover:bg-red-700 transition flex items-center justify-center text-sm">
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"></path></svg>
+                            PDF
+                        </button>
+                        <button id="downloadDocxBtn" class="bg-blue-800 text-white font-semibold py-2 px-4 rounded hover:bg-blue-900 transition flex items-center justify-center text-sm">
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 012-2h4.586A1 1 0 0111.293 2.707l4 4a1 1 0 01.293.707V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"></path></svg>
+                            Word
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="preview-section">
+            <div id="examPreview" class="exam-page">
+                <div class="flex flex-col items-center justify-center h-full text-gray-400 opacity-50 space-y-4">
+                    <svg class="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <div class="text-center">
+                        <p class="text-xl font-bold italic">Exam Preview</p>
+                        <p>Enter details and click "Generate Preview"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/main.js" type="module"></script>
+</body>
+</html>
