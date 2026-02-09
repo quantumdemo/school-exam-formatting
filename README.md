@@ -3,7 +3,7 @@
 A professional web application for secondary school teachers to format examination papers into a standard academic layout (WAEC style).
 
 ## Visionary Idea
-This project was brought to life based on a visionary idea by **Afeez Alomi Olalekan**, aimed at empowering teachers and simplifying academic administration.
+This project was brought to life based on a visionary idea by **Afeez Alimi Olalekan**, aimed at empowering teachers and simplifying academic administration.
 
 ## Features
 - **Pasted Text Parsing:** Automatically transforms raw, poorly spaced text into a structured exam document.
