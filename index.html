@@ -25,7 +25,7 @@
             background: white;
             width: 210mm;
             min-height: 297mm;
-            padding: 20mm;
+            padding: 12.7mm;
             margin: 20px auto;
             box-shadow: 0 0 20px rgba(0,0,0,0.15);
             font-family: 'Times New Roman', Times, serif;
@@ -93,6 +93,7 @@
         .objective-question {
             margin-bottom: 15px;
             page-break-inside: avoid;
+            white-space: pre-wrap;
         }
 
         .options-grid {
@@ -106,6 +107,7 @@
         .theory-question {
             margin-bottom: 25px;
             page-break-inside: avoid;
+            white-space: pre-wrap;
         }
 
         .theory-q-title {
@@ -117,6 +119,7 @@
         .sub-question {
             margin-left: 30px;
             margin-bottom: 5px;
+            white-space: pre-wrap;
         }
 
         .marks {
@@ -138,21 +141,33 @@
             height: 100vh;
         }
 
-        @media (min-width: 1024px) {
-            .app-container {
-                flex-direction: row;
-            }
-            .input-section {
-                width: 450px;
-                min-width: 450px;
-                overflow-y: auto;
-            }
-            .preview-section {
-                flex-grow: 1;
-                overflow-y: auto;
-                background-color: #374151;
-                padding: 40px 20px;
-            }
+        .app-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .input-section {
+            width: 100%;
+            background: white;
+            border-radius: 1rem;
+        }
+
+        .preview-section {
+            display: none; /* Hidden by default */
+            width: 100%;
+            background-color: #374151;
+            padding: 40px 0;
+            border-radius: 1rem;
+            margin-top: 20px;
+        }
+
+        .preview-section.active {
+            display: block;
+        }
+
+        .input-section.hidden {
+            display: none;
         }
 
         .hero-gradient {
@@ -274,34 +289,33 @@
                     <textarea id="sectionB" rows="6" class="w-full border-2 border-gray-100 rounded-xl p-3 font-mono text-sm focus:border-blue-500 focus:outline-none transition" placeholder="1. (a) State Ohm's law [3 marks]&#10;(b) Define resistance. [2 marks]"></textarea>
                 </div>
 
-                <div class="sticky bottom-0 bg-white pt-6 pb-2 space-y-3 border-t">
-                    <button id="generateBtn" class="w-full hero-gradient text-white font-extrabold py-4 px-4 rounded-xl shadow-lg hover:shadow-xl transition transform active:scale-95">
-                        Generate Live Preview
+                <div class="pt-6 pb-2">
+                    <button id="generateBtn" class="w-full hero-gradient text-white font-extrabold py-5 px-4 rounded-xl shadow-lg hover:shadow-xl transition transform active:scale-95 text-lg">
+                        Generate Examination Document
                     </button>
-                    <div class="grid grid-cols-2 gap-3">
-                        <button id="downloadPdfBtn" class="bg-red-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-red-700 transition flex items-center justify-center text-sm shadow-md">
-                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"></path></svg>
-                            Download PDF
-                        </button>
-                        <button id="downloadDocxBtn" class="bg-blue-900 text-white font-bold py-3 px-4 rounded-xl hover:bg-blue-950 transition flex items-center justify-center text-sm shadow-md">
-                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 012-2h4.586A1 1 0 0111.293 2.707l4 4a1 1 0 01.293.707V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"></path></svg>
-                            Download Word
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Preview Section -->
-        <div class="preview-section">
+        <div id="previewSection" class="preview-section no-print">
+            <div class="max-w-[210mm] mx-auto mb-6 flex flex-wrap gap-4 px-4">
+                <button id="backBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-xl transition flex items-center shadow-md">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Back to Edit
+                </button>
+                <div class="flex-grow"></div>
+                <button id="downloadPdfBtn" class="bg-red-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-red-700 transition flex items-center shadow-md">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"></path></svg>
+                    Download PDF
+                </button>
+                <button id="downloadDocxBtn" class="bg-blue-900 text-white font-bold py-3 px-6 rounded-xl hover:bg-blue-950 transition flex items-center shadow-md">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 012-2h4.586A1 1 0 0111.293 2.707l4 4a1 1 0 01.293.707V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"></path></svg>
+                    Download Word
+                </button>
+            </div>
             <div id="examPreview" class="exam-page">
-                <div class="flex flex-col items-center justify-center h-full text-gray-400 opacity-40 space-y-6">
-                    <svg class="w-32 h-32" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    <div class="text-center">
-                        <p class="text-2xl font-bold italic">Exam Live Preview</p>
-                        <p class="text-lg">Fill in the details to see the magic</p>
-                    </div>
-                </div>
+                <!-- Content generated here -->
             </div>
         </div>
     </div>

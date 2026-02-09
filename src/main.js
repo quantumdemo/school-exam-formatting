@@ -1,9 +1,22 @@
 import { parseObjectives, parseTheory } from './parser.js';
 
-document.getElementById('generateBtn').addEventListener('click', generatePreview);
+document.getElementById('generateBtn').addEventListener('click', showDocument);
+document.getElementById('backBtn').addEventListener('click', showEditor);
 document.getElementById('downloadPdfBtn').addEventListener('click', downloadPdf);
 document.getElementById('downloadDocxBtn').addEventListener('click', downloadDocx);
 document.getElementById('loadSampleBtn').addEventListener('click', loadSample);
+
+function showDocument() {
+    generatePreview();
+    document.querySelector('.input-section').classList.add('hidden');
+    document.getElementById('previewSection').classList.add('active');
+    window.scrollTo({ top: document.getElementById('app-main').offsetTop - 20, behavior: 'smooth' });
+}
+
+function showEditor() {
+    document.querySelector('.input-section').classList.remove('hidden');
+    document.getElementById('previewSection').classList.remove('active');
+}
 
 function loadSample() {
     document.getElementById('schoolName').value = "ST. ANTHONY'S COLLEGE, LAGOS";
@@ -204,7 +217,7 @@ function downloadPdf() {
     const filename = `${data.subject || 'Exam'}_${data.className || ''}_Paper.pdf`.replace(/\s+/g, '_');
 
     const opt = {
-        margin:       [15, 15, 15, 15],
+        margin:       [12.7, 12.7, 12.7, 12.7],
         filename:     filename,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true },
@@ -221,9 +234,15 @@ async function downloadDocx() {
         return;
     }
 
+    if (!window.docx) {
+        alert('Word document library not loaded. Please check your internet connection and refresh.');
+        return;
+    }
+
     const { Document, Packer, Paragraph, TextRun, AlignmentType, BorderStyle, UnderlineType, TabStopType } = window.docx;
 
-    const children = [];
+    try {
+        const children = [];
 
     // Header
     children.push(new Paragraph({
@@ -271,9 +290,15 @@ async function downloadDocx() {
         }));
 
         data.objectives.forEach((q, index) => {
+            const textLines = q.text.split('\n');
+            const textRuns = [new TextRun({ text: `${index + 1}. `, size: 24, font: "Times New Roman" })];
+            textLines.forEach((line, i) => {
+                textRuns.push(new TextRun({ text: line, size: 24, font: "Times New Roman", break: i > 0 ? 1 : 0 }));
+            });
+
             children.push(new Paragraph({
                 spacing: { before: 150 },
-                children: [new TextRun({ text: `${index + 1}. ${q.text}`, size: 24, font: "Times New Roman" })],
+                children: textRuns,
             }));
 
             if (q.options.length > 0) {
@@ -314,15 +339,16 @@ async function downloadDocx() {
             }));
 
             if (q.text) {
+        const textLines = q.text.split('\n');
+        const textRuns = [];
+        textLines.forEach((line, i) => {
+            textRuns.push(new TextRun({ text: line, size: 24, font: "Times New Roman", break: i > 0 ? 1 : 0 }));
+        });
+
                 children.push(new Paragraph({
-                    tabStops: [
-                        {
-                            type: TabStopType.RIGHT,
-                            position: 9000,
-                        },
-                    ],
+            tabStops: [{ type: TabStopType.RIGHT, position: 9000 }],
                     children: [
-                        new TextRun({ text: q.text, size: 24, font: "Times New Roman" }),
+                ...textRuns,
                         ...(q.marks ? [
                             new TextRun({ text: "\t", size: 24 }),
                             new TextRun({ text: `[${q.marks}]`, bold: true, size: 24, font: "Times New Roman" })
@@ -332,16 +358,17 @@ async function downloadDocx() {
             }
 
             q.subQuestions.forEach(sub => {
+        const textLines = sub.text.split('\n');
+        const textRuns = [new TextRun({ text: `(${sub.label}) `, size: 24, font: "Times New Roman" })];
+        textLines.forEach((line, i) => {
+            textRuns.push(new TextRun({ text: line, size: 24, font: "Times New Roman", break: i > 0 ? 1 : 0 }));
+        });
+
                 children.push(new Paragraph({
                     indent: { left: 720 },
-                    tabStops: [
-                        {
-                            type: TabStopType.RIGHT,
-                            position: 9000,
-                        },
-                    ],
+            tabStops: [{ type: TabStopType.RIGHT, position: 9000 }],
                     children: [
-                        new TextRun({ text: `(${sub.label}) ${sub.text}`, size: 24, font: "Times New Roman" }),
+                ...textRuns,
                         ...(sub.marks ? [
                             new TextRun({ text: "\t", size: 24 }),
                             new TextRun({ text: `[${sub.marks}]`, bold: true, size: 24, font: "Times New Roman" })
@@ -357,10 +384,10 @@ async function downloadDocx() {
             properties: {
                 page: {
                     margin: {
-                        top: 1440,
-                        right: 1440,
-                        bottom: 1440,
-                        left: 1440,
+                        top: 720,
+                        right: 720,
+                        bottom: 720,
+                        left: 720,
                     },
                 },
             },
@@ -368,8 +395,22 @@ async function downloadDocx() {
         }],
     });
 
-    Packer.toBlob(doc).then(blob => {
+        const blob = await Packer.toBlob(doc);
         const filename = `${data.subject || 'Exam'}_${data.className || ''}_Paper.docx`.replace(/\s+/g, '_');
-        saveAs(blob, filename);
-    });
+
+        if (typeof saveAs !== 'undefined') {
+            saveAs(blob, filename);
+        } else {
+            // Fallback for saving blob
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    } catch (error) {
+        console.error('Error generating Word document:', error);
+        alert('An error occurred while generating the Word document. Please try again.');
+    }
 }

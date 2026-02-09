@@ -27,18 +27,57 @@ export function parseObjectives(text) {
         const fullContent = text.substring(start, end).trim();
 
         // Find options A, B, C, D, E
-        // Look for (A) or A. or A)
-        const optionsRegex = /(?:\s+|^)\(?([A-E])[\.\)\s]\s+/g;
-        const options = [];
+        // We look for all potential markers and then find the best sequence.
+        // We also check whitespace before the marker to avoid false positives like "Point A. is..."
+        const optionsRegex = /(\s+|^)\(?([A-E])[\.\)\s]\s+/g;
+        let allPotentialMatches = [];
         let optMatch;
-        const optionMatches = [];
         while ((optMatch = optionsRegex.exec(fullContent)) !== null) {
-            optionMatches.push({
+            const prefix = optMatch[1];
+            const score = prefix.includes('\n') ? 10 : (prefix.length > 1 ? 5 : 1);
+            allPotentialMatches.push({
                 index: optMatch.index,
-                label: optMatch[1],
-                fullMatch: optMatch[0]
+                label: optMatch[2].toUpperCase(),
+                fullMatch: optMatch[0],
+                score: score
             });
         }
+
+        // Find the sequence A, B, C, D... that has the best score/length
+        let bestSequence = [];
+        let bestScore = -1;
+
+        for (let j = 0; j < allPotentialMatches.length; j++) {
+            if (allPotentialMatches[j].label === 'A') {
+                let currentSeq = [allPotentialMatches[j]];
+                let currentScore = allPotentialMatches[j].score;
+                let lastLabel = 'A';
+                for (let k = j + 1; k < allPotentialMatches.length; k++) {
+                    const nextLabel = String.fromCharCode(lastLabel.charCodeAt(0) + 1);
+                    if (allPotentialMatches[k].label === nextLabel) {
+                        currentSeq.push(allPotentialMatches[k]);
+                        currentScore += allPotentialMatches[k].score;
+                        lastLabel = nextLabel;
+                    }
+                }
+
+                // Heuristic: Prioritize longer sequences.
+                // If lengths are equal, pick the one with the higher score.
+                // If scores are also equal, pick the one that starts LATER (higher index)
+                // as false positives like "Point A." usually appear early in the question.
+                if (currentSeq.length > bestSequence.length ||
+                   (currentSeq.length === bestSequence.length && currentScore > bestScore) ||
+                   (currentSeq.length === bestSequence.length && currentScore === bestScore && currentSeq[0].index > (bestSequence[0]?.index || -1))) {
+                    bestSequence = currentSeq;
+                    bestScore = currentScore;
+                }
+            }
+        }
+
+        // If we found a sequence of at least 2 options, we treat them as the options
+        // Otherwise, we might have false positives or just no options
+        const optionMatches = bestSequence.length >= 2 ? bestSequence : [];
+        const options = [];
 
         let questionText = "";
         if (optionMatches.length > 0) {
@@ -48,7 +87,7 @@ export function parseObjectives(text) {
                 const oEnd = (j + 1 < optionMatches.length) ? optionMatches[j+1].index : fullContent.length;
                 options.push({
                     label: optionMatches[j].label,
-                    text: fullContent.substring(oStart, oEnd).trim().replace(/\s+/g, ' ')
+                    text: fullContent.substring(oStart, oEnd).trim().replace(/[^\S\r\n]+/g, ' ')
                 });
             }
         } else {
@@ -57,7 +96,7 @@ export function parseObjectives(text) {
 
         questions.push({
             number: markers[i].number,
-            text: questionText.replace(/\s+/g, ' '),
+            text: questionText.replace(/[^\S\r\n]+/g, ' ').trim(),
             options: options
         });
     }
@@ -91,16 +130,37 @@ export function parseTheory(text) {
         const fullContent = text.substring(start, end).trim();
 
         // Split by sub-questions (a), (b), (c)... or a. b. c.
-        const subRegex = /(?:\s+|^)\(([a-h])\)\s+|(?:\s+|^)([a-h])[\.\)]\s+/g;
-        const subMatches = [];
+        const subRegex = /(?:\s+|^)\(?([a-h])[\.\)]\s+/g;
+        let allPotentialSubs = [];
         let sMatch;
         while ((sMatch = subRegex.exec(fullContent)) !== null) {
-            subMatches.push({
+            allPotentialSubs.push({
                 index: sMatch.index,
-                label: sMatch[1] || sMatch[2],
+                label: sMatch[1].toLowerCase(),
                 fullMatch: sMatch[0]
             });
         }
+
+        let bestSubSeq = [];
+        for (let j = 0; j < allPotentialSubs.length; j++) {
+            if (allPotentialSubs[j].label === 'a') {
+                let currentSeq = [allPotentialSubs[j]];
+                let lastLabel = 'a';
+                for (let k = j + 1; k < allPotentialSubs.length; k++) {
+                    const nextLabel = String.fromCharCode(lastLabel.charCodeAt(0) + 1);
+                    if (allPotentialSubs[k].label === nextLabel) {
+                        currentSeq.push(allPotentialSubs[k]);
+                        lastLabel = nextLabel;
+                    }
+                }
+                if (currentSeq.length > bestSubSeq.length) {
+                    bestSubSeq = currentSeq;
+                }
+            }
+        }
+
+        // For theory, even a single (a) is often a sub-question if it's at start or has space
+        const subMatches = bestSubSeq;
 
         const subQuestions = [];
         let mainText = "";
@@ -121,7 +181,7 @@ export function parseTheory(text) {
 
                 subQuestions.push({
                     label: subMatches[j].label,
-                    text: textWithoutMarks.replace(/\s+/g, ' '),
+                    text: textWithoutMarks.replace(/[^\S\r\n]+/g, ' '),
                     marks
                 });
             }
@@ -138,7 +198,7 @@ export function parseTheory(text) {
 
         questions.push({
             number: markers[i].number,
-            text: mainText.replace(/\s+/g, ' '),
+            text: mainText.replace(/[^\S\r\n]+/g, ' ').trim(),
             subQuestions,
             marks
         });
