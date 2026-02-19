@@ -3,7 +3,7 @@
  * Expected format: 1. Question? A. Option 1 B. Option 2...
  */
 export function parseObjectives(text) {
-    if (!text.trim()) return [];
+    if (!text.trim()) return { questions: [], preamble: "" };
 
     // Improved regex to find question starts at the beginning of lines or after newline
     // Supports "1.", "1)", "1 " and optional "Question 1"
@@ -18,7 +18,9 @@ export function parseObjectives(text) {
         });
     }
 
-    if (markers.length === 0) return [];
+    if (markers.length === 0) return { questions: [], preamble: text.trim() };
+
+    const preamble = text.substring(0, markers[0].index).trim();
 
     const questions = [];
     for (let i = 0; i < markers.length; i++) {
@@ -26,10 +28,9 @@ export function parseObjectives(text) {
         const end = (i + 1 < markers.length) ? markers[i+1].index : text.length;
         const fullContent = text.substring(start, end).trim();
 
-        // Find options A, B, C, D, E
+        // Find options A, B, C, D, E (and lowercase a, b, c, d, e)
         // We look for all potential markers and then find the best sequence.
-        // We also check whitespace before the marker to avoid false positives like "Point A. is..."
-        const optionsRegex = /(\s+|^)\(?([A-E])[\.\)\s]\s+/g;
+        const optionsRegex = /(\s+|^)\(?([A-Ea-e])[\.\)\s]\s+/g;
         let allPotentialMatches = [];
         let optMatch;
         while ((optMatch = optionsRegex.exec(fullContent)) !== null) {
@@ -38,6 +39,7 @@ export function parseObjectives(text) {
             allPotentialMatches.push({
                 index: optMatch.index,
                 label: optMatch[2].toUpperCase(),
+                originalLabel: optMatch[2],
                 fullMatch: optMatch[0],
                 score: score
             });
@@ -52,19 +54,19 @@ export function parseObjectives(text) {
                 let currentSeq = [allPotentialMatches[j]];
                 let currentScore = allPotentialMatches[j].score;
                 let lastLabel = 'A';
+
                 for (let k = j + 1; k < allPotentialMatches.length; k++) {
-                    const nextLabel = String.fromCharCode(lastLabel.charCodeAt(0) + 1);
-                    if (allPotentialMatches[k].label === nextLabel) {
+                    const charCode = allPotentialMatches[k].label.charCodeAt(0);
+                    const lastCharCode = lastLabel.charCodeAt(0);
+
+                    // Allow exact next or a gap of 1 (e.g. A->B->D)
+                    if (charCode > lastCharCode && charCode <= lastCharCode + 2) {
                         currentSeq.push(allPotentialMatches[k]);
                         currentScore += allPotentialMatches[k].score;
-                        lastLabel = nextLabel;
+                        lastLabel = allPotentialMatches[k].label;
                     }
                 }
 
-                // Heuristic: Prioritize longer sequences.
-                // If lengths are equal, pick the one with the higher score.
-                // If scores are also equal, pick the one that starts LATER (higher index)
-                // as false positives like "Point A." usually appear early in the question.
                 if (currentSeq.length > bestSequence.length ||
                    (currentSeq.length === bestSequence.length && currentScore > bestScore) ||
                    (currentSeq.length === bestSequence.length && currentScore === bestScore && currentSeq[0].index > (bestSequence[0]?.index || -1))) {
@@ -75,7 +77,6 @@ export function parseObjectives(text) {
         }
 
         // If we found a sequence of at least 2 options, we treat them as the options
-        // Otherwise, we might have false positives or just no options
         const optionMatches = bestSequence.length >= 2 ? bestSequence : [];
         const options = [];
 
@@ -86,7 +87,7 @@ export function parseObjectives(text) {
                 const oStart = optionMatches[j].index + optionMatches[j].fullMatch.length;
                 const oEnd = (j + 1 < optionMatches.length) ? optionMatches[j+1].index : fullContent.length;
                 options.push({
-                    label: optionMatches[j].label,
+                    label: optionMatches[j].originalLabel,
                     text: fullContent.substring(oStart, oEnd).trim().replace(/[^\S\r\n]+/g, ' ')
                 });
             }
@@ -100,7 +101,7 @@ export function parseObjectives(text) {
             options: options
         });
     }
-    return questions;
+    return { questions, preamble };
 }
 
 /**
@@ -108,7 +109,7 @@ export function parseObjectives(text) {
  * Expected format: 1. Question (a) Sub 1 (b) Sub 2 [10 marks]
  */
 export function parseTheory(text) {
-    if (!text.trim()) return [];
+    if (!text.trim()) return { questions: [], preamble: "" };
 
     const questionRegex = /(?:^|\n)\s*(?:Question\s+)?(\d+)[\.\)\s]/gi;
     const markers = [];
@@ -121,7 +122,9 @@ export function parseTheory(text) {
         });
     }
 
-    if (markers.length === 0) return [];
+    if (markers.length === 0) return { questions: [], preamble: text.trim() };
+
+    const preamble = text.substring(0, markers[0].index).trim();
 
     const questions = [];
     for (let i = 0; i < markers.length; i++) {
@@ -129,14 +132,15 @@ export function parseTheory(text) {
         const end = (i + 1 < markers.length) ? markers[i+1].index : text.length;
         const fullContent = text.substring(start, end).trim();
 
-        // Split by sub-questions (a), (b), (c)... or a. b. c.
-        const subRegex = /(?:\s+|^)\(?([a-h])[\.\)]\s+/g;
+        // Split by sub-questions (a), (b), (c)... or a. b. c. (A-H also supported)
+        const subRegex = /(?:\s+|^)\(?([a-hA-H])[\.\)]\s+/g;
         let allPotentialSubs = [];
         let sMatch;
         while ((sMatch = subRegex.exec(fullContent)) !== null) {
             allPotentialSubs.push({
                 index: sMatch.index,
                 label: sMatch[1].toLowerCase(),
+                originalLabel: sMatch[1],
                 fullMatch: sMatch[0]
             });
         }
@@ -147,10 +151,12 @@ export function parseTheory(text) {
                 let currentSeq = [allPotentialSubs[j]];
                 let lastLabel = 'a';
                 for (let k = j + 1; k < allPotentialSubs.length; k++) {
-                    const nextLabel = String.fromCharCode(lastLabel.charCodeAt(0) + 1);
-                    if (allPotentialSubs[k].label === nextLabel) {
+                    const charCode = allPotentialSubs[k].label.charCodeAt(0);
+                    const lastCharCode = lastLabel.charCodeAt(0);
+
+                    if (charCode > lastCharCode && charCode <= lastCharCode + 2) {
                         currentSeq.push(allPotentialSubs[k]);
-                        lastLabel = nextLabel;
+                        lastLabel = allPotentialSubs[k].label;
                     }
                 }
                 if (currentSeq.length > bestSubSeq.length) {
@@ -180,7 +186,7 @@ export function parseTheory(text) {
                 const textWithoutMarks = marks ? content.replace(marksRegex, '').trim() : content;
 
                 subQuestions.push({
-                    label: subMatches[j].label,
+                    label: subMatches[j].originalLabel,
                     text: textWithoutMarks.replace(/[^\S\r\n]+/g, ' '),
                     marks
                 });
@@ -203,5 +209,5 @@ export function parseTheory(text) {
             marks
         });
     }
-    return questions;
+    return { questions, preamble };
 }

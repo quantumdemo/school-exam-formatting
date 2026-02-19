@@ -114,7 +114,7 @@ function renderPreview(data) {
     preview.appendChild(meta);
 
     // Section A
-    if (data.objectives.length > 0) {
+    if (data.objectives.questions.length > 0) {
         const secAHeader = document.createElement('div');
         secAHeader.className = 'section-heading';
         secAHeader.textContent = 'SECTION A: OBJECTIVE QUESTIONS';
@@ -122,10 +122,10 @@ function renderPreview(data) {
 
         const secAInst = document.createElement('div');
         secAInst.className = 'instruction';
-        secAInst.textContent = 'Instruction: Answer all questions in this section.';
+        secAInst.textContent = data.objectives.preamble || 'Instruction: Answer all questions in this section.';
         preview.appendChild(secAInst);
 
-        data.objectives.forEach((q, index) => {
+        data.objectives.questions.forEach((q, index) => {
             const qDiv = document.createElement('div');
             qDiv.className = 'objective-question';
 
@@ -148,7 +148,7 @@ function renderPreview(data) {
     }
 
     // Section B
-    if (data.theory.length > 0) {
+    if (data.theory.questions.length > 0) {
         const secBHeader = document.createElement('div');
         secBHeader.className = 'section-heading';
         secBHeader.textContent = 'SECTION B: THEORY';
@@ -156,12 +156,12 @@ function renderPreview(data) {
 
         const secBInst = document.createElement('div');
         secBInst.className = 'instruction';
-        secBInst.textContent = 'Instruction: Answer all questions in this section unless otherwise stated.';
+        secBInst.textContent = data.theory.preamble || 'Instruction: Answer all questions in this section unless otherwise stated.';
         preview.appendChild(secBInst);
 
         const numberWords = ["ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "ELEVEN", "TWELVE", "THIRTEEN", "FOURTEEN", "FIFTEEN", "SIXTEEN", "SEVENTEEN", "EIGHTEEN", "NINETEEN", "TWENTY"];
 
-        data.theory.forEach((q, index) => {
+        data.theory.questions.forEach((q, index) => {
             const qDiv = document.createElement('div');
             qDiv.className = 'theory-question';
 
@@ -215,7 +215,7 @@ function downloadPdf() {
     const element = document.getElementById('examPreview');
     const data = getFormData();
 
-    if (!data.schoolName && data.objectives.length === 0 && data.theory.length === 0) {
+    if (!data.schoolName && data.objectives.questions.length === 0 && data.theory.questions.length === 0) {
         alert('Please fill in the exam details and generate a preview first!');
         return;
     }
@@ -235,7 +235,7 @@ function downloadPdf() {
 
 async function downloadDocx() {
     const data = getFormData();
-    if (!data.schoolName && data.objectives.length === 0 && data.theory.length === 0) {
+    if (!data.schoolName && data.objectives.questions.length === 0 && data.theory.questions.length === 0) {
         alert('Please fill in the exam details and generate a preview first!');
         return;
     }
@@ -287,7 +287,7 @@ async function downloadDocx() {
     }));
 
     // Section A
-    if (data.objectives.length > 0) {
+    if (data.objectives.questions.length > 0) {
         children.push(new Paragraph({
             alignment: AlignmentType.CENTER,
             spacing: { before: 400 },
@@ -295,10 +295,10 @@ async function downloadDocx() {
         }));
         children.push(new Paragraph({
             spacing: { after: 200 },
-            children: [new TextRun({ text: "Instruction: Answer all questions in this section.", italics: true, size: 22, font: "Times New Roman" })],
+            children: [new TextRun({ text: data.objectives.preamble || "Instruction: Answer all questions in this section.", italics: true, size: 22, font: "Times New Roman" })],
         }));
 
-        data.objectives.forEach((q, index) => {
+        data.objectives.questions.forEach((q, index) => {
             const textLines = q.text.split('\n');
             const textRuns = [new TextRun({ text: `${index + 1}. `, size: 24, font: "Times New Roman" })];
             textLines.forEach((line, i) => {
@@ -335,7 +335,7 @@ async function downloadDocx() {
     }
 
     // Section B
-    if (data.theory.length > 0) {
+    if (data.theory.questions.length > 0) {
         children.push(new Paragraph({
             alignment: AlignmentType.CENTER,
             spacing: { before: 500 },
@@ -343,12 +343,12 @@ async function downloadDocx() {
         }));
         children.push(new Paragraph({
             spacing: { after: 200 },
-            children: [new TextRun({ text: "Instruction: Answer all questions in this section unless otherwise stated.", italics: true, size: 22, font: "Times New Roman" })],
+            children: [new TextRun({ text: data.theory.preamble || "Instruction: Answer all questions in this section unless otherwise stated.", italics: true, size: 22, font: "Times New Roman" })],
         }));
 
         const numberWords = ["ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "ELEVEN", "TWELVE", "THIRTEEN", "FOURTEEN", "FIFTEEN", "SIXTEEN", "SEVENTEEN", "EIGHTEEN", "NINETEEN", "TWENTY"];
 
-        data.theory.forEach((q, index) => {
+        data.theory.questions.forEach((q, index) => {
             children.push(new Paragraph({
                 spacing: { before: 300 },
                 children: [new TextRun({ text: `QUESTION ${numberWords[index] || (index+1)}`, bold: true, size: 24, font: "Times New Roman" })],
